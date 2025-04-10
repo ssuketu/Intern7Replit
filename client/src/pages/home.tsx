@@ -3,6 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { useAuth } from "@/lib/userAuth";
+import { LogoWithText } from "@/components/ui/logo";
+import { AnimatedGrowthIcon } from "@/components/ui/animated-growth-icon";
+import { 
+  AptitudeCipherIcon, 
+  ProficiencyNexusIcon, 
+  EncounterLensIcon, 
+  GrowthTrajectoryIcon 
+} from "@/components/ui/feature-icons";
 
 export default function HomePage() {
   const { isAuthenticated, user } = useAuth();
@@ -29,11 +37,17 @@ export default function HomePage() {
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-primary-600 to-primary-800 py-20 px-4 sm:px-6 lg:px-8">
           <div className="max-w-5xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              AI-Powered Internship Matching
-            </h1>
+            <div className="flex justify-center mb-6">
+              <LogoWithText size="large" />
+            </div>
+            <div className="flex items-center justify-center mb-4">
+              <AnimatedGrowthIcon className="mr-4" />
+              <h1 className="text-4xl md:text-5xl font-bold text-white">
+                Add Experience to Knowledge
+              </h1>
+            </div>
             <p className="text-xl text-primary-100 mb-8 max-w-3xl mx-auto">
-              Connect with the perfect internship opportunity through our intelligent matching algorithm that analyzes your skills, experience, and career goals.
+              Intelligent pathways connecting ambition with opportunity, fostering holistic career emergence.
             </p>
             <div className="space-x-4">
               {isAuthenticated ? (
@@ -60,53 +74,66 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Features Section */}
+        {/* Features Presentation */}
         <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">How InternMatch Works</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">The InternVacancy Edge</h2>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                Our AI-powered platform makes finding the perfect internship match easier than ever before.
+                Intelligently connecting ambition with opportunity, fostering holistic career emergence.
               </p>
             </div>
             
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-4 gap-8">
               {/* Feature 1 */}
-              <div className="text-center p-6 border border-gray-100 rounded-lg shadow-sm">
-                <div className="w-16 h-16 mx-auto mb-4 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
+              <div className="text-center p-6 hover:shadow-md transition-shadow duration-300 rounded-lg">
+                <div className="mx-auto mb-4 flex items-center justify-center">
+                  <AptitudeCipherIcon />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Create Your Profile</h3>
+                <h3 className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 mb-2">
+                  Aptitude Cipher
+                </h3>
                 <p className="text-gray-600">
-                  Upload your resume or fill in your details. Our AI will analyze your skills and experience.
+                  Decode Your Readiness.
                 </p>
               </div>
               
               {/* Feature 2 */}
-              <div className="text-center p-6 border border-gray-100 rounded-lg shadow-sm">
-                <div className="w-16 h-16 mx-auto mb-4 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
+              <div className="text-center p-6 hover:shadow-md transition-shadow duration-300 rounded-lg">
+                <div className="mx-auto mb-4 flex items-center justify-center">
+                  <ProficiencyNexusIcon />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Get Matched</h3>
+                <h3 className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 mb-2">
+                  Proficiency Nexus
+                </h3>
                 <p className="text-gray-600">
-                  Our algorithm matches you with internships based on your skills, interests, and career goals.
+                  Bridge Your Skill Horizon.
                 </p>
               </div>
               
               {/* Feature 3 */}
-              <div className="text-center p-6 border border-gray-100 rounded-lg shadow-sm">
-                <div className="w-16 h-16 mx-auto mb-4 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+              <div className="text-center p-6 hover:shadow-md transition-shadow duration-300 rounded-lg">
+                <div className="mx-auto mb-4 flex items-center justify-center">
+                  <EncounterLensIcon />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Apply & Connect</h3>
+                <h3 className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 mb-2">
+                  Encounter Lens
+                </h3>
                 <p className="text-gray-600">
-                  Apply with one click and communicate directly with employers through our platform.
+                  Sharpen Your Interview Persona.
+                </p>
+              </div>
+              
+              {/* Feature 4 */}
+              <div className="text-center p-6 hover:shadow-md transition-shadow duration-300 rounded-lg">
+                <div className="mx-auto mb-4 flex items-center justify-center">
+                  <GrowthTrajectoryIcon />
+                </div>
+                <h3 className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 mb-2">
+                  Growth Trajectory
+                </h3>
+                <p className="text-gray-600">
+                  Chart Your Evolving Path.
                 </p>
               </div>
             </div>
@@ -216,13 +243,82 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* For Colleges Section */}
+        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
+          <div className="max-w-7xl mx-auto">
+            <div className="lg:flex lg:items-center lg:gap-12">
+              <div className="lg:w-1/2">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">For Colleges</h2>
+                <p className="text-lg text-gray-600 mb-6">
+                  Streamline pre-campus placements with our powerful tools for college administrators. Manage student data, approve employer connections, and track placement success.
+                </p>
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-start">
+                    <svg className="w-5 h-5 text-primary-500 mt-1 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-gray-700">Bulk student data uploading (CV/resumes and CSV)</span>
+                  </li>
+                  <li className="flex items-start">
+                    <svg className="w-5 h-5 text-primary-500 mt-1 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-gray-700">Employer approval system for campus placements</span>
+                  </li>
+                  <li className="flex items-start">
+                    <svg className="w-5 h-5 text-primary-500 mt-1 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-gray-700">Comprehensive analytics on student placements</span>
+                  </li>
+                  <li className="flex items-start">
+                    <svg className="w-5 h-5 text-primary-500 mt-1 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-gray-700">Curriculum guidance based on industry demand</span>
+                  </li>
+                </ul>
+                <Link href="/register">
+                  <Button>Create College Account</Button>
+                </Link>
+              </div>
+              <div className="mt-8 lg:mt-0 lg:w-1/2 bg-primary-100 rounded-lg p-6 lg:p-8">
+                <div className="aspect-w-16 aspect-h-9 rounded-md overflow-hidden shadow-lg">
+                  <div className="bg-primary-200 w-full h-full flex items-center justify-center text-primary-700">
+                    <svg className="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Employer CTA Section */}
+        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+              Nurture Tomorrow's Innovators?
+            </h2>
+            <p className="text-lg text-gray-600 mb-8">
+              Discover nascent talent poised for impactful growth.
+            </p>
+            <Link href="/register">
+              <Button size="lg" className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700">
+                Cultivate Talent
+              </Button>
+            </Link>
+          </div>
+        </section>
         
         {/* CTA Section */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-primary-600 text-white">
+        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-6">Ready to find your perfect match?</h2>
-            <p className="text-lg text-primary-100 mb-8">
-              Join thousands of students and employers who are already using InternMatch to connect.
+            <h2 className="text-3xl font-bold mb-6">The InternVacancy Experience</h2>
+            <p className="text-lg text-white opacity-90 mb-8">
+              Join the platform intelligently connecting ambition with opportunity, fostering holistic career emergence.
             </p>
             <div className="space-x-4">
               <Link href="/register">
