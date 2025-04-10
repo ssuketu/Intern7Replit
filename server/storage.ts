@@ -6,8 +6,13 @@ import {
   type Application, type InsertApplication,
   type Message, type InsertMessage,
   type SkillMatchScore, type SkillGapAnalysis,
-  type LearningResource, type InsertLearningResource
+  type LearningResource, type InsertLearningResource,
+  type CollegeProfile, type InsertCollegeProfile,
+  type BulkUpload, type InsertBulkUpload,
+  type EmployerApproval, type InsertEmployerApproval
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, and, desc, sql } from "drizzle-orm";
 
 // Storage interface for the application
 export interface IStorage {

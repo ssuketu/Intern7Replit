@@ -2,8 +2,9 @@ import { pgTable, text, serial, integer, boolean, timestamp, jsonb, real, pgEnum
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const userRoleEnum = pgEnum('user_role', ['student', 'employer', 'admin']);
+export const userRoleEnum = pgEnum('user_role', ['student', 'employer', 'admin', 'college']);
 export const applicationStatusEnum = pgEnum('application_status', ['applied', 'in_review', 'interview_scheduled', 'accepted', 'rejected']);
+export const approvalStatusEnum = pgEnum('approval_status', ['pending', 'approved', 'rejected']);
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -114,6 +115,49 @@ export const learningResources = pgTable("learning_resources", {
   ratingCount: integer("rating_count"),
 });
 
+export const collegeProfiles = pgTable("college_profiles", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  collegeName: text("college_name").notNull(),
+  description: text("description"),
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  country: text("country"),
+  postalCode: text("postal_code"),
+  website: text("website"),
+  logoUrl: text("logo_url"),
+  phoneNumber: text("phone_number"),
+  establishedYear: integer("established_year"),
+  accreditations: jsonb("accreditations").default([]),
+  programsOffered: jsonb("programs_offered").default([]),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const bulkUploads = pgTable("bulk_uploads", {
+  id: serial("id").primaryKey(),
+  collegeId: integer("college_id").notNull().references(() => collegeProfiles.id),
+  filename: text("filename").notNull(),
+  fileUrl: text("file_url").notNull(),
+  recordCount: integer("record_count"),
+  successCount: integer("success_count").default(0),
+  errorCount: integer("error_count").default(0),
+  status: text("status").default("processing"),
+  errorDetails: jsonb("error_details").default([]),
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+  processedAt: timestamp("processed_at"),
+});
+
+export const employerApprovals = pgTable("employer_approvals", {
+  id: serial("id").primaryKey(),
+  employerId: integer("employer_id").notNull().references(() => employerProfiles.id),
+  collegeId: integer("college_id").notNull().references(() => collegeProfiles.id),
+  status: approvalStatusEnum("status").default("pending"),
+  reason: text("reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Insert and Select Types
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -150,6 +194,28 @@ export const insertLearningResourceSchema = createInsertSchema(learningResources
   id: true,
 });
 
+export const insertCollegeProfileSchema = createInsertSchema(collegeProfiles).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertBulkUploadSchema = createInsertSchema(bulkUploads).omit({
+  id: true,
+  successCount: true,
+  errorCount: true,
+  status: true,
+  errorDetails: true,
+  uploadedAt: true,
+  processedAt: true,
+});
+
+export const insertEmployerApprovalSchema = createInsertSchema(employerApprovals).omit({
+  id: true,
+  status: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
@@ -170,6 +236,15 @@ export type Message = typeof messages.$inferSelect;
 
 export type InsertLearningResource = z.infer<typeof insertLearningResourceSchema>;
 export type LearningResource = typeof learningResources.$inferSelect;
+
+export type InsertCollegeProfile = z.infer<typeof insertCollegeProfileSchema>;
+export type CollegeProfile = typeof collegeProfiles.$inferSelect;
+
+export type InsertBulkUpload = z.infer<typeof insertBulkUploadSchema>;
+export type BulkUpload = typeof bulkUploads.$inferSelect;
+
+export type InsertEmployerApproval = z.infer<typeof insertEmployerApprovalSchema>;
+export type EmployerApproval = typeof employerApprovals.$inferSelect;
 
 export type SkillMatchScore = typeof skillMatchScores.$inferSelect;
 export type SkillGapAnalysis = typeof skillGapAnalyses.$inferSelect;
