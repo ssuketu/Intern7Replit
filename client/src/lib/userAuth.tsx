@@ -7,7 +7,7 @@ type AuthContextType = {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, role: 'student' | 'employer' | 'admin') => Promise<void>;
+  register: (name: string, email: string, password: string, role: 'student' | 'employer' | 'admin' | 'college') => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 };
@@ -69,7 +69,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const register = async (name: string, email: string, password: string, role: 'student' | 'employer' | 'admin') => {
+  const register = async (name: string, email: string, password: string, role: 'student' | 'employer' | 'admin' | 'college') => {
     try {
       setLoading(true);
       const response = await apiRequest("POST", "/api/auth/register", { name, email, password, role });

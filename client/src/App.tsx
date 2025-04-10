@@ -7,6 +7,7 @@ import RegisterPage from "@/pages/register";
 import StudentDashboard from "@/pages/student-dashboard";
 import EmployerDashboard from "@/pages/employer-dashboard";
 import AdminDashboard from "@/pages/admin-dashboard";
+import CollegeDashboard from "@/pages/college-dashboard";
 import ProfileSetup from "@/pages/profile-setup";
 import CreateJob from "@/pages/create-job";
 import JobDetails from "@/pages/job-details";
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/dashboard/student" component={StudentDashboard} />
       <Route path="/dashboard/employer" component={EmployerDashboard} />
       <Route path="/dashboard/admin" component={AdminDashboard} />
+      <Route path="/dashboard/college" component={CollegeDashboard} />
       <Route path="/profile-setup" component={ProfileSetup} />
       <Route path="/jobs/create" component={CreateJob} />
       <Route path="/jobs/:id" component={JobDetails} />

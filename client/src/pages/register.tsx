@@ -29,7 +29,7 @@ const registerSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-  role: z.enum(["student", "employer", "admin"], {
+  role: z.enum(["student", "employer", "admin", "college"], {
     required_error: "Please select a role",
   }),
 });
@@ -40,7 +40,7 @@ export default function RegisterPage() {
   const { register } = useAuth();
   const [, setLocation] = useLocation();
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"student" | "employer">("student");
+  const [activeTab, setActiveTab] = useState<"student" | "employer" | "college">("student");
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -54,9 +54,9 @@ export default function RegisterPage() {
 
   // Update the role value when the tab changes
   const handleTabChange = (value: string) => {
-    if (value === "student" || value === "employer") {
-      setActiveTab(value);
-      form.setValue("role", value);
+    if (value === "student" || value === "employer" || value === "college") {
+      setActiveTab(value as "student" | "employer" | "college");
+      form.setValue("role", value as "student" | "employer" | "college");
     }
   };
 
@@ -90,9 +90,10 @@ export default function RegisterPage() {
           </div>
           
           <Tabs defaultValue="student" onValueChange={handleTabChange}>
-            <TabsList className="grid grid-cols-2 mb-6">
+            <TabsList className="grid grid-cols-3 mb-6">
               <TabsTrigger value="student">Student</TabsTrigger>
               <TabsTrigger value="employer">Employer</TabsTrigger>
+              <TabsTrigger value="college">College</TabsTrigger>
             </TabsList>
             
             <TabsContent value="student">
@@ -104,6 +105,12 @@ export default function RegisterPage() {
             <TabsContent value="employer">
               <p className="text-sm text-gray-600 mb-6">
                 Create an employer account to post internships, find qualified candidates, and manage applications.
+              </p>
+            </TabsContent>
+            
+            <TabsContent value="college">
+              <p className="text-sm text-gray-600 mb-6">
+                Create a college account to manage student profiles, bulk upload CVs, and approve employers for campus placements.
               </p>
             </TabsContent>
             
