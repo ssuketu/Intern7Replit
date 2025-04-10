@@ -36,6 +36,26 @@ export interface IStorage {
   updateEmployerProfile(id: number, profileData: Partial<InsertEmployerProfile>): Promise<EmployerProfile | undefined>;
   getAllEmployerProfiles(): Promise<EmployerProfile[]>;
   
+  // College profiles
+  getCollegeProfile(id: number): Promise<CollegeProfile | undefined>;
+  getCollegeProfileByUserId(userId: number): Promise<CollegeProfile | undefined>;
+  createCollegeProfile(profile: InsertCollegeProfile): Promise<CollegeProfile>;
+  updateCollegeProfile(id: number, profileData: Partial<InsertCollegeProfile>): Promise<CollegeProfile | undefined>;
+  getAllCollegeProfiles(): Promise<CollegeProfile[]>;
+  
+  // Bulk Uploads
+  getBulkUpload(id: number): Promise<BulkUpload | undefined>;
+  createBulkUpload(upload: InsertBulkUpload): Promise<BulkUpload>;
+  updateBulkUploadStatus(id: number, status: string, successCount?: number, errorCount?: number, errorDetails?: any[]): Promise<BulkUpload | undefined>;
+  getBulkUploadsByCollegeId(collegeId: number): Promise<BulkUpload[]>;
+  
+  // Employer Approvals
+  getEmployerApproval(id: number): Promise<EmployerApproval | undefined>;
+  createEmployerApproval(approval: InsertEmployerApproval): Promise<EmployerApproval>;
+  updateEmployerApprovalStatus(id: number, status: 'pending' | 'approved' | 'rejected', reason?: string): Promise<EmployerApproval | undefined>;
+  getEmployerApprovalsByCollegeId(collegeId: number): Promise<EmployerApproval[]>;
+  getEmployerApprovalsByEmployerId(employerId: number): Promise<EmployerApproval[]>;
+  
   // Jobs
   getJob(id: number): Promise<Job | undefined>;
   createJob(job: InsertJob): Promise<Job>;
@@ -80,6 +100,9 @@ export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private studentProfiles: Map<number, StudentProfile>;
   private employerProfiles: Map<number, EmployerProfile>;
+  private collegeProfiles: Map<number, CollegeProfile>;
+  private bulkUploads: Map<number, BulkUpload>;
+  private employerApprovals: Map<number, EmployerApproval>;
   private jobs: Map<number, Job>;
   private applications: Map<number, Application>;
   private messages: Map<number, Message>;
@@ -90,6 +113,9 @@ export class MemStorage implements IStorage {
   private userIdCounter: number;
   private studentProfileIdCounter: number;
   private employerProfileIdCounter: number;
+  private collegeProfileIdCounter: number;
+  private bulkUploadIdCounter: number;
+  private employerApprovalIdCounter: number;
   private jobIdCounter: number;
   private applicationIdCounter: number;
   private messageIdCounter: number;
@@ -101,6 +127,9 @@ export class MemStorage implements IStorage {
     this.users = new Map();
     this.studentProfiles = new Map();
     this.employerProfiles = new Map();
+    this.collegeProfiles = new Map();
+    this.bulkUploads = new Map();
+    this.employerApprovals = new Map();
     this.jobs = new Map();
     this.applications = new Map();
     this.messages = new Map();
@@ -111,6 +140,9 @@ export class MemStorage implements IStorage {
     this.userIdCounter = 1;
     this.studentProfileIdCounter = 1;
     this.employerProfileIdCounter = 1;
+    this.collegeProfileIdCounter = 1;
+    this.bulkUploadIdCounter = 1;
+    this.employerApprovalIdCounter = 1;
     this.jobIdCounter = 1;
     this.applicationIdCounter = 1;
     this.messageIdCounter = 1;
@@ -136,6 +168,7 @@ export class MemStorage implements IStorage {
     const newUser: User = {
       ...user,
       id,
+      role: user.role || 'student', // Make sure role is never undefined
       createdAt: new Date()
     };
     this.users.set(id, newUser);
@@ -224,6 +257,140 @@ export class MemStorage implements IStorage {
   
   async getAllEmployerProfiles(): Promise<EmployerProfile[]> {
     return Array.from(this.employerProfiles.values());
+  }
+  
+  // College profiles
+  async getCollegeProfile(id: number): Promise<CollegeProfile | undefined> {
+    return this.collegeProfiles.get(id);
+  }
+  
+  async getCollegeProfileByUserId(userId: number): Promise<CollegeProfile | undefined> {
+    return Array.from(this.collegeProfiles.values()).find(profile => profile.userId === userId);
+  }
+  
+  async createCollegeProfile(profile: InsertCollegeProfile): Promise<CollegeProfile> {
+    const id = this.collegeProfileIdCounter++;
+    const newProfile: CollegeProfile = {
+      ...profile,
+      id,
+      createdAt: new Date()
+    };
+    this.collegeProfiles.set(id, newProfile);
+    return newProfile;
+  }
+  
+  async updateCollegeProfile(id: number, profileData: Partial<InsertCollegeProfile>): Promise<CollegeProfile | undefined> {
+    const profile = this.collegeProfiles.get(id);
+    if (!profile) return undefined;
+    
+    const updatedProfile: CollegeProfile = {
+      ...profile,
+      ...profileData
+    };
+    this.collegeProfiles.set(id, updatedProfile);
+    return updatedProfile;
+  }
+  
+  async getAllCollegeProfiles(): Promise<CollegeProfile[]> {
+    return Array.from(this.collegeProfiles.values());
+  }
+  
+  // Bulk Uploads
+  async getBulkUpload(id: number): Promise<BulkUpload | undefined> {
+    return this.bulkUploads.get(id);
+  }
+  
+  async createBulkUpload(upload: InsertBulkUpload): Promise<BulkUpload> {
+    const id = this.bulkUploadIdCounter++;
+    const newUpload: BulkUpload = {
+      ...upload,
+      id,
+      successCount: 0,
+      errorCount: 0,
+      status: "processing",
+      errorDetails: [],
+      uploadedAt: new Date(),
+      processedAt: null
+    };
+    this.bulkUploads.set(id, newUpload);
+    return newUpload;
+  }
+  
+  async updateBulkUploadStatus(
+    id: number, 
+    status: string, 
+    successCount?: number, 
+    errorCount?: number, 
+    errorDetails?: any[]
+  ): Promise<BulkUpload | undefined> {
+    const upload = this.bulkUploads.get(id);
+    if (!upload) return undefined;
+    
+    const updatedUpload: BulkUpload = {
+      ...upload,
+      status,
+      processedAt: new Date(),
+      ...(successCount !== undefined && { successCount }),
+      ...(errorCount !== undefined && { errorCount }),
+      ...(errorDetails !== undefined && { errorDetails })
+    };
+    this.bulkUploads.set(id, updatedUpload);
+    return updatedUpload;
+  }
+  
+  async getBulkUploadsByCollegeId(collegeId: number): Promise<BulkUpload[]> {
+    return Array.from(this.bulkUploads.values())
+      .filter(upload => upload.collegeId === collegeId)
+      .sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime());
+  }
+  
+  // Employer Approvals
+  async getEmployerApproval(id: number): Promise<EmployerApproval | undefined> {
+    return this.employerApprovals.get(id);
+  }
+  
+  async createEmployerApproval(approval: InsertEmployerApproval): Promise<EmployerApproval> {
+    const id = this.employerApprovalIdCounter++;
+    const now = new Date();
+    const newApproval: EmployerApproval = {
+      ...approval,
+      id,
+      status: "pending",
+      createdAt: now,
+      updatedAt: now
+    };
+    this.employerApprovals.set(id, newApproval);
+    return newApproval;
+  }
+  
+  async updateEmployerApprovalStatus(
+    id: number, 
+    status: 'pending' | 'approved' | 'rejected', 
+    reason?: string
+  ): Promise<EmployerApproval | undefined> {
+    const approval = this.employerApprovals.get(id);
+    if (!approval) return undefined;
+    
+    const updatedApproval: EmployerApproval = {
+      ...approval,
+      status,
+      ...(reason && { reason }),
+      updatedAt: new Date()
+    };
+    this.employerApprovals.set(id, updatedApproval);
+    return updatedApproval;
+  }
+  
+  async getEmployerApprovalsByCollegeId(collegeId: number): Promise<EmployerApproval[]> {
+    return Array.from(this.employerApprovals.values())
+      .filter(approval => approval.collegeId === collegeId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+  
+  async getEmployerApprovalsByEmployerId(employerId: number): Promise<EmployerApproval[]> {
+    return Array.from(this.employerApprovals.values())
+      .filter(approval => approval.employerId === employerId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
   
   // Jobs

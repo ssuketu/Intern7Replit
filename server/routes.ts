@@ -8,7 +8,10 @@ import {
   insertJobSchema,
   insertApplicationSchema,
   insertMessageSchema,
-  insertLearningResourceSchema
+  insertLearningResourceSchema,
+  insertCollegeProfileSchema,
+  insertBulkUploadSchema,
+  insertEmployerApprovalSchema
 } from "@shared/schema";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
@@ -696,6 +699,279 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Mark message as read error:', error);
       res.status(500).json({ error: 'Failed to mark message as read' });
+    }
+  });
+
+  // College profile routes
+  app.post('/api/college-profiles', async (req: Request, res: Response) => {
+    const validation = validateRequest(insertCollegeProfileSchema, req.body);
+    if (!validation.success) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    try {
+      const user = await storage.getUser(validation.data.userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      if (user.role !== 'college') {
+        return res.status(403).json({ error: 'User must have college role to create a college profile' });
+      }
+
+      const existingProfile = await storage.getCollegeProfileByUserId(validation.data.userId);
+      if (existingProfile) {
+        return res.status(409).json({ error: 'College profile already exists for this user' });
+      }
+
+      const newProfile = await storage.createCollegeProfile(validation.data);
+      res.status(201).json(newProfile);
+    } catch (error) {
+      console.error('Create college profile error:', error);
+      res.status(500).json({ error: 'Failed to create college profile' });
+    }
+  });
+
+  app.get('/api/college-profiles/user/:userId', async (req: Request, res: Response) => {
+    const userId = parseInt(req.params.userId);
+    
+    if (isNaN(userId)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
+
+    try {
+      const profile = await storage.getCollegeProfileByUserId(userId);
+      
+      if (!profile) {
+        return res.status(404).json({ error: 'College profile not found' });
+      }
+      
+      res.json(profile);
+    } catch (error) {
+      console.error('Get college profile error:', error);
+      res.status(500).json({ error: 'Failed to retrieve college profile' });
+    }
+  });
+
+  app.patch('/api/college-profiles/:id', async (req: Request, res: Response) => {
+    const profileId = parseInt(req.params.id);
+    
+    if (isNaN(profileId)) {
+      return res.status(400).json({ error: 'Invalid profile ID' });
+    }
+
+    try {
+      const profile = await storage.getCollegeProfile(profileId);
+      
+      if (!profile) {
+        return res.status(404).json({ error: 'College profile not found' });
+      }
+
+      const updatedProfile = await storage.updateCollegeProfile(profileId, req.body);
+      res.json(updatedProfile);
+    } catch (error) {
+      console.error('Update college profile error:', error);
+      res.status(500).json({ error: 'Failed to update college profile' });
+    }
+  });
+
+  app.get('/api/college-profiles', async (req: Request, res: Response) => {
+    try {
+      const profiles = await storage.getAllCollegeProfiles();
+      res.json(profiles);
+    } catch (error) {
+      console.error('Get all college profiles error:', error);
+      res.status(500).json({ error: 'Failed to retrieve college profiles' });
+    }
+  });
+
+  // Bulk upload routes
+  app.post('/api/bulk-uploads', async (req: Request, res: Response) => {
+    const validation = validateRequest(insertBulkUploadSchema, req.body);
+    if (!validation.success) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    try {
+      const collegeProfile = await storage.getCollegeProfile(validation.data.collegeId);
+      if (!collegeProfile) {
+        return res.status(404).json({ error: 'College profile not found' });
+      }
+
+      const newUpload = await storage.createBulkUpload(validation.data);
+      res.status(201).json(newUpload);
+    } catch (error) {
+      console.error('Create bulk upload error:', error);
+      res.status(500).json({ error: 'Failed to create bulk upload' });
+    }
+  });
+
+  app.get('/api/bulk-uploads/college/:collegeId', async (req: Request, res: Response) => {
+    const collegeId = parseInt(req.params.collegeId);
+    
+    if (isNaN(collegeId)) {
+      return res.status(400).json({ error: 'Invalid college ID' });
+    }
+
+    try {
+      const uploads = await storage.getBulkUploadsByCollegeId(collegeId);
+      res.json(uploads);
+    } catch (error) {
+      console.error('Get college bulk uploads error:', error);
+      res.status(500).json({ error: 'Failed to retrieve college bulk uploads' });
+    }
+  });
+
+  app.patch('/api/bulk-uploads/:id/status', async (req: Request, res: Response) => {
+    const uploadId = parseInt(req.params.id);
+    const { status, successCount, errorCount, errorDetails } = req.body;
+    
+    if (isNaN(uploadId)) {
+      return res.status(400).json({ error: 'Invalid upload ID' });
+    }
+
+    if (!status) {
+      return res.status(400).json({ error: 'Status is required' });
+    }
+
+    try {
+      const upload = await storage.getBulkUpload(uploadId);
+      
+      if (!upload) {
+        return res.status(404).json({ error: 'Bulk upload not found' });
+      }
+
+      const updatedUpload = await storage.updateBulkUploadStatus(
+        uploadId, 
+        status, 
+        successCount, 
+        errorCount, 
+        errorDetails
+      );
+      
+      res.json(updatedUpload);
+    } catch (error) {
+      console.error('Update bulk upload status error:', error);
+      res.status(500).json({ error: 'Failed to update bulk upload status' });
+    }
+  });
+
+  // Employer approval routes
+  app.post('/api/employer-approvals', async (req: Request, res: Response) => {
+    const validation = validateRequest(insertEmployerApprovalSchema, req.body);
+    if (!validation.success) {
+      return res.status(400).json({ error: validation.error });
+    }
+
+    try {
+      const collegeProfile = await storage.getCollegeProfile(validation.data.collegeId);
+      if (!collegeProfile) {
+        return res.status(404).json({ error: 'College profile not found' });
+      }
+
+      const employerProfile = await storage.getEmployerProfile(validation.data.employerId);
+      if (!employerProfile) {
+        return res.status(404).json({ error: 'Employer profile not found' });
+      }
+
+      // Check if approval already exists
+      const existingApprovals = await storage.getEmployerApprovalsByEmployerId(validation.data.employerId);
+      const alreadyRequested = existingApprovals.some(
+        approval => approval.collegeId === validation.data.collegeId && 
+                  approval.status === 'pending'
+      );
+      
+      if (alreadyRequested) {
+        return res.status(409).json({ error: 'Approval request already exists for this employer by this college' });
+      }
+
+      const newApproval = await storage.createEmployerApproval(validation.data);
+      res.status(201).json(newApproval);
+    } catch (error) {
+      console.error('Create employer approval error:', error);
+      res.status(500).json({ error: 'Failed to create employer approval' });
+    }
+  });
+
+  app.get('/api/employer-approvals/college/:collegeId', async (req: Request, res: Response) => {
+    const collegeId = parseInt(req.params.collegeId);
+    
+    if (isNaN(collegeId)) {
+      return res.status(400).json({ error: 'Invalid college ID' });
+    }
+
+    try {
+      const approvals = await storage.getEmployerApprovalsByCollegeId(collegeId);
+      
+      // Fetch employer details for each approval
+      const approvalsWithEmployers = await Promise.all(
+        approvals.map(async (approval) => {
+          const employer = await storage.getEmployerProfile(approval.employerId);
+          return { ...approval, employer };
+        })
+      );
+      
+      res.json(approvalsWithEmployers);
+    } catch (error) {
+      console.error('Get college employer approvals error:', error);
+      res.status(500).json({ error: 'Failed to retrieve college employer approvals' });
+    }
+  });
+
+  app.get('/api/employer-approvals/employer/:employerId', async (req: Request, res: Response) => {
+    const employerId = parseInt(req.params.employerId);
+    
+    if (isNaN(employerId)) {
+      return res.status(400).json({ error: 'Invalid employer ID' });
+    }
+
+    try {
+      const approvals = await storage.getEmployerApprovalsByEmployerId(employerId);
+      
+      // Fetch college details for each approval
+      const approvalsWithColleges = await Promise.all(
+        approvals.map(async (approval) => {
+          const college = await storage.getCollegeProfile(approval.collegeId);
+          return { ...approval, college };
+        })
+      );
+      
+      res.json(approvalsWithColleges);
+    } catch (error) {
+      console.error('Get employer college approvals error:', error);
+      res.status(500).json({ error: 'Failed to retrieve employer college approvals' });
+    }
+  });
+
+  app.patch('/api/employer-approvals/:id/status', async (req: Request, res: Response) => {
+    const approvalId = parseInt(req.params.id);
+    const { status, reason } = req.body;
+    
+    if (isNaN(approvalId)) {
+      return res.status(400).json({ error: 'Invalid approval ID' });
+    }
+
+    if (!status || !['pending', 'approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Valid status is required (pending, approved, or rejected)' });
+    }
+
+    try {
+      const approval = await storage.getEmployerApproval(approvalId);
+      
+      if (!approval) {
+        return res.status(404).json({ error: 'Employer approval not found' });
+      }
+
+      const updatedApproval = await storage.updateEmployerApprovalStatus(
+        approvalId, 
+        status as 'pending' | 'approved' | 'rejected', 
+        reason
+      );
+      
+      res.json(updatedApproval);
+    } catch (error) {
+      console.error('Update employer approval status error:', error);
+      res.status(500).json({ error: 'Failed to update employer approval status' });
     }
   });
 
