@@ -31,10 +31,13 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "client/index.html"),
+      },
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'wouter'],
-          ui: ['@/components/ui']
+          ui: ['@/components/ui/button', '@/components/ui/card', '@/components/ui/form']
         }
       }
     }
